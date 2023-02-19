@@ -8,14 +8,16 @@ function generateAccessToken(user, duration) {
   });
 }
 
-function checkToken(token) {
-  return jwt.verify(token, process.env.MY_ACCESS_TOKEN_SECRET);
-}
-
 const getUsers = asyncHandler(async (req, res) => {
   const users = await User.find();
 
   res.status(200).json(users);
+});
+
+const getUser = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id);
+
+  res.status(200).json(user);
 });
 
 const setUser = asyncHandler(async (req, res) => {
@@ -68,15 +70,18 @@ const deleteUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-  const user = await User.findOne({ email: req.body.email });
+  const email = await User.findOne({ email: req.body.email });
+  const password = await User.findOne({ password: req.body.password });
 
-  if (user) {
-    const result = generateAccessToken(user, "1d");
+  if (email && password) {
+    const result = generateAccessToken(User, "1d");
     res.status(200).json(result);
   }
 });
+
 module.exports = {
   getUsers,
+  getUser,
   setUser,
   updateUser,
   deleteUser,
